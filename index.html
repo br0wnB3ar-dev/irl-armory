@@ -56,6 +56,10 @@ body.ro .addbtn,body.ro .del,body.ro .ownonly{display:none!important}
 .modal .btns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
 .emojis{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}.emojis span{cursor:pointer;font-size:20px;padding:2px;border-radius:4px}.emojis span:hover{background:#3d3326}
 .ronote{display:none;text-align:center;color:#c9b17a;font-size:12px;padding:4px}body.ro .ronote{display:block}
+.sitefoot{text-align:center;padding:8px 14px 12px}
+a.support{font-family:Cinzel,serif;font-size:12px;color:var(--gold);text-decoration:none;border:1px solid #c9a24a;border-radius:4px;padding:3px 10px;background:linear-gradient(#3a2f22,#1c1712);display:inline-block}
+a.support:hover{color:#fff}
+.affnote{margin-top:6px;font-size:11px;color:#c9b17a;line-height:1.3}
 </style></head><body>
 <div class="frame" id="frame" style="display:none">
 <div class="toolbar"><span class="ownonly"><button class="edit" id="editProf">✎ Edit profile</button> <button class="edit" id="shareBtn">🔗 Share my page</button></span><button class="edit" id="makeOwn" style="display:none">Make your own</button></div>
@@ -75,6 +79,7 @@ body.ro .addbtn,body.ro .del,body.ro .ownonly{display:none!important}
 <div class="panel"><div class="hdr">Achievements</div><div id="ach"></div><button class="addbtn" data-add="ach">+ Add achievement</button></div>
 </div></section>
 <div class="tabs"><div class="tab on" data-p="character">Character</div><div class="tab" data-p="reputation">Reputation</div><div class="tab" data-p="currency">Currency</div></div>
+<div class="sitefoot"><a class="support" href="https://www.paypal.com/donate/?business=adr020787%40gmail.com&amp;currency_code=USD&amp;item_name=IRL%20Armory" target="_blank" rel="noopener">Support this site</a><div class="affnote">As an Amazon Associate I earn from qualifying purchases.</div></div>
 </div>
 <div class="tip" id="tip"></div>
 <div class="modalbg" id="mbg"><div class="modal" id="modal"></div></div>
@@ -86,6 +91,7 @@ const KEY="irl_profile";let P=null,RO=false;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const safeUrl=u=>/^https?:\/\//i.test(u||"")?u:"";
+function buyLink(u){const raw=safeUrl(u);if(!raw)return"";try{const url=new URL(raw);const h=url.hostname.toLowerCase().replace(/\.$/,"");if(h==="amazon.com"||h.endsWith(".amazon.com")){url.searchParams.set("tag","brownbeargear-20");return url.toString()}return raw}catch(e){return raw}}
 function saveP(){if(!RO)localStorage.setItem(KEY,JSON.stringify(P))}
 function blank(){return{name:"",level:"",sub:"",photo:"",gear:Array(18).fill(null),stats:[],places:[],reps:[],cur:[],ach:[]}}
 function modal(title,fields,onSave,onDel){
@@ -111,9 +117,9 @@ function render(){
   d.className="slot "+(g?"r-"+g.rar:"empty");
   d.innerHTML=g?(safeUrl(g.icon)?`<img src="${esc(g.icon)}">`:esc(g.icon||"❔")):(RO?esc(s):"+ Add item");
   $(i<8?"left":i<16?"right":"bottom").appendChild(d);
-  d.onmouseenter=e=>{if(!g&&RO)return;const t=$("tip");t.innerHTML=g?`<b class="c-${g.rar}">${esc(g.name)}</b><div class="s">${esc(s)}</div>${g.desc?`<div class="f">"${esc(g.desc)}"</div>`:""}${safeUrl(g.link)?`<div style="margin-top:6px"><a href="${esc(g.link)}" target="_blank" rel="noopener noreferrer">🛒 Buy it here</a></div>`:""}`:`<div class="s">${esc(s)} — empty</div>`;t.style.display="block";const r=d.getBoundingClientRect();t.style.left=Math.min(r.right+6,innerWidth-270)+"px";t.style.top=r.top+"px"};
+  d.onmouseenter=e=>{if(!g&&RO)return;const t=$("tip");t.innerHTML=g?`<b class="c-${g.rar}">${esc(g.name)}</b><div class="s">${esc(s)}</div>${g.desc?`<div class="f">"${esc(g.desc)}"</div>`:""}${safeUrl(g.link)?`<div style="margin-top:6px"><a href="${esc(buyLink(g.link))}" target="_blank" rel="noopener noreferrer">🛒 Buy it here</a></div>`:""}`:`<div class="s">${esc(s)} — empty</div>`;t.style.display="block";const r=d.getBoundingClientRect();t.style.left=Math.min(r.right+6,innerWidth-270)+"px";t.style.top=r.top+"px"};
   d.onmouseleave=()=>setTimeout(()=>{if(!$("tip").matches(":hover"))$("tip").style.display="none"},250);
-  d.onclick=()=>{if(RO){if(g&&safeUrl(g.link))window.open(g.link,"_blank","noopener");return}
+  d.onclick=()=>{if(RO){if(g&&safeUrl(g.link))window.open(buyLink(g.link),"_blank","noopener");return}
    modal((g?"Edit ":"Add ")+s+" item",[{k:"name",l:"Item name",v:g?.name},{k:"icon",l:"Icon (pick an emoji or paste an image URL)",v:g?.icon,emoji:1},{k:"rar",l:"Rarity color",t:"select",o:RAR,v:g?.rar||"rare"},{k:"desc",l:"Short description",v:g?.desc},{k:"link",l:"Buy link (URL)",v:g?.link,p:"https://..."}],v=>{if(!v.name){alert("Please enter an item name.");return false}if(v.link&&!safeUrl(v.link)){alert("Buy link must start with http:// or https://");return false}P.gear[i]=v},g?()=>P.gear[i]=null:null)}});
  $("tip").onmouseleave=()=>$("tip").style.display="none";
  const list=(id,key,fmt,fields)=>{$(id).innerHTML=P[key].map((x,i)=>fmt(x,i)).join("");$(id).querySelectorAll("[data-i]").forEach(el=>{if(RO)return;el.style.cursor="pointer";el.onclick=()=>{const i=+el.dataset.i;modal("Edit",fields(P[key][i]),v=>{P[key][i]=v},()=>P[key].splice(i,1))}})};
