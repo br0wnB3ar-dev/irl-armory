@@ -1,0 +1,142 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>IRL Armory</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#ffd100;--bg:#14110d;--stone:#24201b;--line:#5a4a32;--poor:#9d9d9d;--common:#fff;--unc:#1eff00;--rare:#0070dd;--epic:#a335ee;--leg:#ff8000}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 30% 20%,#3b2f22,#0b0907 70%);font-family:'Open Sans',sans-serif;color:#eee;display:flex;justify-content:center;align-items:flex-start;padding:30px}
+.frame{width:980px;max-width:100%;background:linear-gradient(#1d1915,#120f0c);border:3px solid #6d5a3c;border-radius:10px;box-shadow:0 0 0 2px #000,0 10px 40px #000;position:relative}
+.titlebar{text-align:center;padding:10px 60px 6px;border-bottom:2px solid var(--line);background:linear-gradient(#3a2f22,#1c1712)}
+.titlebar h1{font-family:Cinzel,serif;margin:0;font-size:22px;color:#fff;text-shadow:0 0 4px #000}
+.sub{color:var(--gold);font-size:14px;margin-top:2px}
+.unused{position:absolute;left:-18px;top:-18px;width:64px;height:64px;border-radius:50%;background:#2a2219;border:3px solid #c9a24a;display:flex;align-items:center;justify-content:center;font-size:30px}
+.toolbar{position:absolute;right:12px;top:12px}
+button.edit{font-family:Cinzel,serif;background:linear-gradient(#7a1a12,#3d0b07);color:var(--gold);border:1px solid #c9a24a;border-radius:4px;padding:5px 10px;cursor:pointer}
+body.editing button.edit{background:linear-gradient(#1f6b1f,#0d360d)}
+.page{display:none;padding:14px}.page.on{display:block}
+.char{display:grid;grid-template-columns:64px 1fr 64px 300px;gap:10px}
+.col{display:flex;flex-direction:column;gap:8px}
+.slot{width:60px;height:60px;border:2px solid;border-radius:6px;background:radial-gradient(#3a332a,#15120e);display:flex;align-items:center;justify-content:center;font-size:30px;cursor:default;position:relative;box-shadow:inset 0 0 8px #000}
+.r-poor{border-color:var(--poor)}.r-common{border-color:#ccc}.r-unc{border-color:var(--unc)}.r-rare{border-color:var(--rare)}.r-epic{border-color:var(--epic)}.r-leg{border-color:var(--leg)}
+.c-poor{color:var(--poor)}.c-common{color:#fff}.c-unc{color:var(--unc)}.c-rare{color:#3a9bff}.c-epic{color:#c77dff}.c-leg{color:var(--leg)}
+.portrait{border:2px solid var(--line);border-radius:6px;background:linear-gradient(#2f2a24,#0d0b09);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:560px;position:relative}
+.portrait svg{width:70%;max-width:300px;opacity:.85}.portrait .note{color:#aaa;font-size:13px;margin-top:8px;border:1px dashed #777;padding:4px 10px;border-radius:4px}
+.bottomslots{display:flex;gap:10px;margin-top:16px}
+.panel{background:linear-gradient(#211c17,#16130f);border:1px solid var(--line);border-radius:6px}
+.hdr{font-family:Cinzel,serif;text-align:center;color:#fff;padding:6px;background:linear-gradient(90deg,transparent,#3d3326,transparent);border-top:1px solid #6d5a3c;border-bottom:1px solid #6d5a3c}
+.ilvl{text-align:center;font-size:30px;color:var(--epic);padding:8px}
+.row{display:flex;justify-content:space-between;padding:4px 14px;font-size:14px;border-bottom:1px solid #2d261e}.row span:first-child{color:var(--gold)}
+.places .row span:last-child{color:var(--unc)}
+.tip{position:fixed;pointer-events:none;z-index:9;max-width:260px;background:rgba(8,10,25,.96);border:1px solid #9aa;border-radius:4px;padding:8px 10px;font-size:13px;display:none}
+.tip b{display:block;font-size:15px}.tip .s{color:#fff;opacity:.85}.tip .f{color:var(--gold);margin-top:4px}
+.tabs{display:flex;gap:4px;padding:0 14px;transform:translateY(100%);position:absolute;bottom:2px;left:0}
+.tab{font-family:'Open Sans';font-size:13px;padding:7px 18px;background:linear-gradient(#5a1610,#2a0a07);color:var(--gold);border:2px solid #6d5a3c;border-top:none;border-radius:0 0 8px 8px;cursor:pointer}
+.tab.on{background:linear-gradient(#2a2219,#14110d);color:#fff}
+.group{margin-bottom:8px}.ghead{cursor:pointer;font-family:Cinzel,serif;color:var(--gold);padding:8px;background:#1e1914;border:1px solid var(--line);border-radius:4px}
+.ghead::before{content:'▾ '}.group.closed .ghead::before{content:'▸ '}.group.closed .gbody{display:none}
+.rep{display:grid;grid-template-columns:220px 1fr;align-items:center;gap:12px;padding:8px 12px}
+.bar{height:20px;background:#000;border:1px solid #6d5a3c;border-radius:3px;position:relative;overflow:hidden}
+.bar i{display:block;height:100%}.bar span{position:absolute;inset:0;text-align:center;font-size:12px;line-height:20px;text-shadow:0 0 3px #000}
+.cur{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ach{display:flex;align-items:center;gap:12px;padding:8px 12px;border-bottom:1px solid #2d261e}
+.badge{width:40px;height:40px;border-radius:50%;border:2px solid #c9a24a;background:radial-gradient(#4a3c26,#1a140d);display:flex;align-items:center;justify-content:center;font-size:20px}
+body.editing [data-k]{outline:1px dashed #1eff00;cursor:text}
+.hint{display:none;text-align:center;color:var(--unc);font-size:12px;padding:4px}body.editing .hint{display:block}
+@media(max-width:900px){.char{grid-template-columns:64px 1fr 64px}.char .stats{grid-column:1/-1}.cur{grid-template-columns:1fr}}
+
+.slot{cursor:pointer;flex-direction:column}.slot.empty{border-color:#4a4034;color:#8a7a60;font-size:11px;text-align:center}.slot img{width:44px;height:44px;object-fit:cover;border-radius:4px}
+.slot .lbl{display:none}.addbtn{display:block;margin:6px auto;background:none;border:1px dashed #8a7a60;color:#c9b17a;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:12px}
+body.ro .addbtn,body.ro .del,body.ro .ownonly{display:none!important}
+.del{background:none;border:none;color:#c55;cursor:pointer;margin-left:6px}
+.portrait img.photo{width:70%;max-width:300px;border-radius:6px;border:2px solid #6d5a3c}
+.tip{pointer-events:auto}.tip a{color:#3a9bff}
+.modalbg{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:20}.modalbg.on{display:flex}
+.modal{background:linear-gradient(#2a231b,#15110d);border:2px solid #c9a24a;border-radius:8px;padding:18px;width:380px;max-width:92vw}
+.modal h2{font-family:Cinzel,serif;color:var(--gold);margin:0 0 12px;text-align:center;font-size:18px}
+.modal label{display:block;font-size:12px;color:#c9b17a;margin-top:8px}.modal input,.modal select,.modal textarea{width:100%;padding:6px;background:#0d0b09;color:#eee;border:1px solid #5a4a32;border-radius:4px;font-family:inherit}
+.modal .btns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.emojis{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}.emojis span{cursor:pointer;font-size:20px;padding:2px;border-radius:4px}.emojis span:hover{background:#3d3326}
+.ronote{display:none;text-align:center;color:#c9b17a;font-size:12px;padding:4px}body.ro .ronote{display:block}
+</style></head><body>
+<div class="frame" id="frame" style="display:none">
+<div class="toolbar"><span class="ownonly"><button class="edit" id="editProf">✎ Edit profile</button> <button class="edit" id="shareBtn">🔗 Share my page</button></span><button class="edit" id="makeOwn" style="display:none">Make your own</button></div>
+<div class="titlebar"><h1 id="hName"></h1><div class="sub" id="hSub"></div></div>
+<div class="ronote">You are viewing someone's shared page (read-only).</div>
+<section class="page on" id="p-character"><div class="char">
+<div class="col" id="left"></div>
+<div class="portrait"><div id="pic"></div><div class="bottomslots" id="bottom"></div></div>
+<div class="col" id="right"></div>
+<div class="stats panel">
+<div class="hdr">Attributes</div><div id="stats"></div><button class="addbtn" data-add="stats">+ Add stat</button>
+<div class="hdr">Places Visited</div><div class="places" id="places"></div><button class="addbtn" data-add="places">+ Add place</button>
+</div></div></section>
+<section class="page" id="p-reputation"><div class="panel"><div class="hdr">Reputation</div><div id="reps"></div><button class="addbtn" data-add="reps">+ Add reputation</button></div></section>
+<section class="page" id="p-currency"><div class="cur">
+<div class="panel"><div class="hdr">Currency</div><div id="cur"></div><button class="addbtn" data-add="cur">+ Add currency</button></div>
+<div class="panel"><div class="hdr">Achievements</div><div id="ach"></div><button class="addbtn" data-add="ach">+ Add achievement</button></div>
+</div></section>
+<div class="tabs"><div class="tab on" data-p="character">Character</div><div class="tab" data-p="reputation">Reputation</div><div class="tab" data-p="currency">Currency</div></div>
+</div>
+<div class="tip" id="tip"></div>
+<div class="modalbg" id="mbg"><div class="modal" id="modal"></div></div>
+<script>
+const SLOTS=["Head","Neck","Shoulder","Back","Chest","Shirt","Tabard","Wrist","Hands","Waist","Legs","Feet","Ring","Ring","Trinket","Trinket","Main Hand","Off Hand"];
+const RAR={poor:"Poor (gray)",common:"Common (white)",unc:"Uncommon (green)",rare:"Rare (blue)",epic:"Epic (purple)",leg:"Legendary (orange)"};
+const EMO="🥾👢👟👖🧥👕🧢🤠🎩⌚💍📿🔪🛠️🔥🖊️🎒📸🔫🎯🪖🛡️⚔️🏹🧤🕶️📱💻🎸🐴".match(/\p{Extended_Pictographic}\uFE0F?/gu);
+const KEY="irl_profile";let P=null,RO=false;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const safeUrl=u=>/^https?:\/\//i.test(u||"")?u:"";
+function saveP(){if(!RO)localStorage.setItem(KEY,JSON.stringify(P))}
+function blank(){return{name:"",level:"",sub:"",photo:"",gear:Array(18).fill(null),stats:[],places:[],reps:[],cur:[],ach:[]}}
+function modal(title,fields,onSave,onDel){
+ const m=$("modal");m.innerHTML=`<h2>${esc(title)}</h2>`+fields.map(f=>`<label>${esc(f.l)}</label>`+(f.t=="select"?`<select id="f_${f.k}">${Object.entries(f.o).map(([v,t])=>`<option value="${v}" ${f.v==v?"selected":""}>${t}</option>`).join("")}</select>`:f.t=="file"?`<input type="file" accept="image/*" id="f_${f.k}">`:`<input id="f_${f.k}" value="${esc(f.v||"")}" placeholder="${esc(f.p||"")}">`)+(f.emoji?`<div class="emojis">${EMO.map(e=>`<span>${e}</span>`).join("")}</div>`:"")).join("")+`<div class="btns">${onDel?'<button class="edit" id="mDel">Remove</button>':""}<button class="edit" id="mCancel">Cancel</button><button class="edit" id="mOk">Save</button></div>`;
+ m.querySelectorAll(".emojis span").forEach(s=>s.onclick=()=>{$("f_icon").value=s.textContent});
+ $("mbg").classList.add("on");
+ $("mCancel").onclick=()=>$("mbg").classList.remove("on");
+ if(onDel)$("mDel").onclick=()=>{onDel();$("mbg").classList.remove("on");saveP();render()};
+ $("mOk").onclick=async()=>{const v={};for(const f of fields){const el=$("f_"+f.k);v[f.k]=f.t=="file"?(el.files[0]?await shrink(el.files[0]):null):el.value.trim()}if(await onSave(v)===false)return;$("mbg").classList.remove("on");saveP();render()};
+}
+function shrink(file){return new Promise(r=>{const img=new Image();img.onload=()=>{const s=Math.min(1,240/Math.max(img.width,img.height));const c=document.createElement("canvas");c.width=img.width*s;c.height=img.height*s;c.getContext("2d").drawImage(img,0,0,c.width,c.height);r(c.toDataURL("image/jpeg",.7))};img.src=URL.createObjectURL(file)})}
+function profileForm(first){
+ modal(first?"Create your character":"Edit profile",[{k:"name",l:"Character name",v:P.name},{k:"level",l:"Title / Level",v:P.level,p:"e.g. Level 40"},{k:"sub",l:"Subtitle",v:P.sub,p:"e.g. Veteran | Horseman"},{k:"photo",l:"Photo (optional)",t:"file"}],v=>{if(!v.name){alert("Please enter a name.");return false}P.name=v.name;P.level=v.level;P.sub=v.sub;if(v.photo)P.photo=v.photo});
+ if(first)$("mCancel").style.display="none";
+}
+const SIL='<svg viewBox="0 0 200 240" style="width:70%;max-width:300px;opacity:.6"><g fill="#5c5247"><ellipse cx="100" cy="95" rx="40" ry="44"/><path d="M30 240 Q35 165 100 158 Q165 165 170 240Z"/></g></svg>';
+function render(){
+ $("frame").style.display="";document.body.classList.toggle("ro",RO);$("makeOwn").style.display=RO?"":"none";
+ $("hName").textContent=P.name+(P.level?" — "+P.level:"");$("hSub").textContent=P.sub;
+ $("pic").innerHTML=P.photo&&/^data:image\//.test(P.photo)?`<img class="photo" src="${P.photo}">`:SIL;
+ ["left","right","bottom"].forEach(c=>$(c).innerHTML="");
+ SLOTS.forEach((s,i)=>{const g=P.gear[i];const d=document.createElement("div");
+  d.className="slot "+(g?"r-"+g.rar:"empty");
+  d.innerHTML=g?(safeUrl(g.icon)?`<img src="${esc(g.icon)}">`:esc(g.icon||"❔")):(RO?esc(s):"+ Add item");
+  $(i<8?"left":i<16?"right":"bottom").appendChild(d);
+  d.onmouseenter=e=>{if(!g&&RO)return;const t=$("tip");t.innerHTML=g?`<b class="c-${g.rar}">${esc(g.name)}</b><div class="s">${esc(s)}</div>${g.desc?`<div class="f">"${esc(g.desc)}"</div>`:""}${safeUrl(g.link)?`<div style="margin-top:6px"><a href="${esc(g.link)}" target="_blank" rel="noopener noreferrer">🛒 Buy it here</a></div>`:""}`:`<div class="s">${esc(s)} — empty</div>`;t.style.display="block";const r=d.getBoundingClientRect();t.style.left=Math.min(r.right+6,innerWidth-270)+"px";t.style.top=r.top+"px"};
+  d.onmouseleave=()=>setTimeout(()=>{if(!$("tip").matches(":hover"))$("tip").style.display="none"},250);
+  d.onclick=()=>{if(RO){if(g&&safeUrl(g.link))window.open(g.link,"_blank","noopener");return}
+   modal((g?"Edit ":"Add ")+s+" item",[{k:"name",l:"Item name",v:g?.name},{k:"icon",l:"Icon (pick an emoji or paste an image URL)",v:g?.icon,emoji:1},{k:"rar",l:"Rarity color",t:"select",o:RAR,v:g?.rar||"rare"},{k:"desc",l:"Short description",v:g?.desc},{k:"link",l:"Buy link (URL)",v:g?.link,p:"https://..."}],v=>{if(!v.name){alert("Please enter an item name.");return false}if(v.link&&!safeUrl(v.link)){alert("Buy link must start with http:// or https://");return false}P.gear[i]=v},g?()=>P.gear[i]=null:null)}});
+ $("tip").onmouseleave=()=>$("tip").style.display="none";
+ const list=(id,key,fmt,fields)=>{$(id).innerHTML=P[key].map((x,i)=>fmt(x,i)).join("");$(id).querySelectorAll("[data-i]").forEach(el=>{if(RO)return;el.style.cursor="pointer";el.onclick=()=>{const i=+el.dataset.i;modal("Edit",fields(P[key][i]),v=>{P[key][i]=v},()=>P[key].splice(i,1))}})};
+ const kv=(x,i)=>`<div class="row" data-i="${i}"><span>${esc(x.k)}</span><span>${esc(x.v)}</span></div>`;
+ list("stats","stats",kv,x=>[{k:"k",l:"Stat name",v:x?.k},{k:"v",l:"Value",v:x?.v}]);
+ list("places","places",(x,i)=>`<div class="row" data-i="${i}"><span>${esc(x.k)}</span><span>✔</span></div>`,x=>[{k:"k",l:"Place",v:x?.k}]);
+ const LV={Hated:5,Hostile:15,Unfriendly:30,Neutral:45,Friendly:60,Honored:75,Revered:88,Exalted:100};
+ list("reps","reps",(x,i)=>`<div class="rep" data-i="${i}"><span>${esc(x.k)}</span><div class="bar"><i style="width:${LV[x.v]||50}%;background:linear-gradient(${(LV[x.v]||50)<45?"#ff4040,#5a0000":"#1eff00,#0a5a00"})"></i><span>${esc(x.v)}</span></div></div>`,x=>[{k:"k",l:"Group",v:x?.k},{k:"v",l:"Standing",t:"select",o:Object.fromEntries(Object.keys(LV).map(k=>[k,k])),v:x?.v||"Friendly"}]);
+ list("cur","cur",kv,x=>[{k:"k",l:"Name",v:x?.k},{k:"v",l:"Amount",v:x?.v}]);
+ list("ach","ach",(x,i)=>`<div class="ach" data-i="${i}"><div class="badge">${esc(x.icon||"🏅")}</div><div><div class="c-leg">${esc(x.k)}</div><div style="font-size:12px;color:#bbb">${esc(x.v)}</div></div></div>`,x=>[{k:"k",l:"Achievement",v:x?.k},{k:"v",l:"Description",v:x?.v},{k:"icon",l:"Badge icon (emoji)",v:x?.icon,emoji:1}]);
+}
+const ADDF={stats:[{k:"k",l:"Stat name"},{k:"v",l:"Value"}],places:[{k:"k",l:"Place"}],reps:null,cur:[{k:"k",l:"Name"},{k:"v",l:"Amount"}],ach:[{k:"k",l:"Achievement"},{k:"v",l:"Description"},{k:"icon",l:"Badge icon (emoji)",emoji:1}]};
+document.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{const key=b.dataset.add;const f=ADDF[key]||[{k:"k",l:"Group"},{k:"v",l:"Standing",t:"select",o:{Hated:"Hated",Hostile:"Hostile",Unfriendly:"Unfriendly",Neutral:"Neutral",Friendly:"Friendly",Honored:"Honored",Revered:"Revered",Exalted:"Exalted"},v:"Friendly"}];modal("Add",f,v=>{if(!v.k){alert("Please fill in the name.");return false}P[key].push(v)})});
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{document.querySelectorAll(".tab,.page").forEach(x=>x.classList.remove("on"));t.classList.add("on");$("p-"+t.dataset.p).classList.add("on")});
+const b64u=b=>btoa(String.fromCharCode(...b)).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const unb64u=s=>Uint8Array.from(atob(s.replace(/-/g,"+").replace(/_/g,"/")),c=>c.charCodeAt(0));
+async function pack(o){const s=new Blob([JSON.stringify(o)]).stream().pipeThrough(new CompressionStream("deflate-raw"));const b=new Uint8Array(await new Response(s).arrayBuffer());let out="";for(let i=0;i<b.length;i+=8192)out+=String.fromCharCode(...b.subarray(i,i+8192));return btoa(out).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
+async function unpack(h){const s=new Blob([unb64u(h)]).stream().pipeThrough(new DecompressionStream("deflate-raw"));return JSON.parse(await new Response(s).text())}
+$("shareBtn").onclick=async()=>{const url=location.href.split("#")[0]+"#p="+await pack(P);try{await navigator.clipboard.writeText(url);alert("Link copied! ("+url.length+" characters)")}catch(e){prompt("Copy your link:",url)}};
+$("editProf").onclick=()=>profileForm(false);
+$("makeOwn").onclick=()=>{location.href=location.href.split("#")[0]};
+(async()=>{const m=location.hash.match(/^#p=(.+)$/);
+ if(m){try{P=Object.assign(blank(),await unpack(m[1]));RO=true;render();return}catch(e){alert("This share link is broken or incomplete.")}}
+ try{P=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+ if(P){P=Object.assign(blank(),P);render()}else{P=blank();profileForm(true)}})();
+</script></body></html>
